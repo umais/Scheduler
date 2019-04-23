@@ -27,7 +27,7 @@ namespace SchedulerLibrary.Jobs
             IJobDetail job = JobBuilder.Create<CreateTicketJob>().Build();
 
             ITrigger trigger = TriggerBuilder.Create()
-                .WithDailyTimeIntervalSchedule(s => s.WithIntervalInSeconds(10))
+                .WithCronSchedule("0 0 0 ? JAN,APR,JUL,OCT * *")
                 .StartNow()
                 .Build();
 
@@ -35,3 +35,9 @@ namespace SchedulerLibrary.Jobs
         }
     }
 }
+
+
+/** This is a Comment
+ * Every Month Cron Syntax:  0 0 0 ? * * *
+ * Every Quarter 
+ */

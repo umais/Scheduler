@@ -4,6 +4,8 @@ using SchedulerLibrary.Interfaces;
 using Quartz;
 using System.Linq;
 using System.Threading.Tasks;
+using SchedulerLibrary.Entities;
+using SchedulerLibrary.EntityFramework.DbContexts;
 namespace SchedulerConsole
 {
     class Program
@@ -23,6 +25,10 @@ namespace SchedulerConsole
                 
              
             }
+
+            JobDbContext d = new JobDbContext();
+            d.Add<Tickets>(new Tickets() { TicketId = 23, TicketTitle = "Testing 123", TicketContent = "This is my content please check" });
+            d.SaveChanges();
             Console.WriteLine("Now Enter Something");
             Console.ReadLine();
 
