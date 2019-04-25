@@ -27,9 +27,9 @@ namespace SchedulerConsole
             }
 
             JobDbContext d = new JobDbContext();
-            d.Add<Tickets>(new Tickets() { TicketId = 23, TicketTitle = "Testing 123", TicketContent = "This is my content please check" });
-            d.SaveChanges();
-            Console.WriteLine("Now Enter Something");
+            //d.Add<Tickets>(new Tickets() { TicketId = 23, TicketTitle = "Testing 123", TicketContent = "This is my content please check" });
+            //d.SaveChanges();
+            Console.WriteLine("The Job's have been started.");
             Console.ReadLine();
 
         }
