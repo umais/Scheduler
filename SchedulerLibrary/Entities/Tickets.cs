@@ -13,5 +13,12 @@ namespace SchedulerLibrary.Entities
        public string TicketTitle { get; set; }
         [MaxLength(500)]
         public string TicketContent { get; set; }
+
+        [MaxLength(500)]
+        public string TicketProject { get; set; }
+
+        public int PersonAssignedTo { get; set; }
+
+        public int MileStone { get; set; }
     }
 }

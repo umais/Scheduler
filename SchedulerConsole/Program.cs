@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using SchedulerLibrary.Entities;
 using SchedulerLibrary.EntityFramework.DbContexts;
+using SchedulerLibrary.REST;
 namespace SchedulerConsole
 {
     class Program
@@ -26,9 +27,16 @@ namespace SchedulerConsole
              
             }
 
-            JobDbContext d = new JobDbContext();
+          //  JobDbContext d = new JobDbContext();
             //d.Add<Tickets>(new Tickets() { TicketId = 23, TicketTitle = "Testing 123", TicketContent = "This is my content please check" });
             //d.SaveChanges();
+
+            //Testing Fogbugz Login Request
+            FogbugzRequest fb = new FogbugzRequest();
+
+            var o = fb.FogBugzLogin("azureadministrator@aligncare.com", "Tw1stone23");
+            var people = fb.getAllManuscriptUsers(o);
+            
             Console.WriteLine("The Job's have been started.");
             Console.ReadLine();
 
