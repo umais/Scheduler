@@ -5,11 +5,15 @@ using RestSharp;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SchedulerLibrary.Entities;
+using Microsoft.Extensions.Configuration;
+using SchedulerLibrary.Interfaces;
 namespace SchedulerLibrary.REST
 {
     public class FogbugzRequest
     {
+        private static FogbugzRequest Instance;
         public string FogBugzAPIURL { get; set; }
+        public string Token { get; set; }
         public enum Operation
         {
             Logon=0,
@@ -18,17 +22,35 @@ namespace SchedulerLibrary.REST
             ListProjects=3
         }
 
+        IConfiguration config;
+
         public string[] Operations { get; set; }
 
         public RestClient Client { get; set; }
 
-        public FogbugzRequest()
+        private FogbugzRequest()
         {
             this.Client = new RestClient();
-            this.Client.BaseUrl = new Uri("https://aligncare.fogbugz.com/api/");
+            config = new ConfigurationBuilder()
+    .AddJsonFile("appConfig.json", true, true)
+    .Build();
+            this.Client.BaseUrl = new Uri(config["fogbugz_url"]);
+      
+
+       
         }
 
-        public string FogBugzLogin(string username,string password)
+        public static FogbugzRequest GetInstance()
+        {
+            if(Instance==null)
+            {
+                Instance = new FogbugzRequest();
+                Instance.Token = Instance.FogBugzLogin(Instance.config["fb_username"], Instance.config["fb_pwd"]);
+            }
+            return Instance;
+        }
+
+        private  string FogBugzLogin(string username,string password)
         {
             var request = new RestRequest("logon", Method.POST);
             request.AddHeader("Content-Type", "application/json"); 
@@ -40,65 +62,133 @@ namespace SchedulerLibrary.REST
 
         }
 
-        public List<FogBugzUsers> getAllManuscriptUsers(string token)
+        public List<iFogBugz> getFogBugzItems(FogBugzPostObject o,int counter=0) 
         {
-            List<FogBugzUsers> fbUsers = new List<FogBugzUsers>();
-            var request = new RestRequest("listPeople", Method.POST);
-            request.AddHeader("Content-Type", "application/json");
-            request.AddJsonBody(new { token, });
-            var response = Client.Execute(request);
-            JObject res = JsonConvert.DeserializeObject<JObject>(response.Content);
+            int errors = 0;
+            int callCounter = counter;
+            List<iFogBugz> fbUsers = new List<iFogBugz>();
 
-            var peopleList = res.SelectToken("data.people");
-            
-            foreach(JObject o in peopleList)
+          
+            try
             {
-                fbUsers.Add(new FogBugzUsers() {
-                                                   PersonId = (int)o.SelectToken("ixPerson"),
-                                                   FullName=(string) o.SelectToken("sFullName"),
-                                                   Email=(string)o.SelectToken("sEmail"),
-                                                   IsAdministrator= (bool)o.SelectToken("fAdministrator"),
-                                                   IsNotified = (bool)o.SelectToken("fNotify")
 
-                });
-              
+            
+            var response = MakeRequest(o);
+       
+                errors = CheckErrors(response);
+                if (errors == 0)
+                {
+                    fbUsers = ParseResponse(response,(Operation) o.Operation);
+                }
+                else
+                {
+                    if (callCounter < 3)
+                    {
+                        ++callCounter;
+                        Instance.Token = Instance.FogBugzLogin(Instance.config["fb_username"], Instance.config["fb_pwd"]);
+                        fbUsers = getFogBugzItems(o,callCounter);
+                    }
+                    else
+                        throw new Exception(string.Format("Some Error Occured Making the {0} Request.",o.Command));
+                        //Write Code to Log this Error.
+
+                }
+            }
+            catch(Exception ex)
+            {
+                throw ex;
             }
             return fbUsers;
         }
 
-        public List<FogBugzProjects> getAllProjects(string token)
-        {
-            List<FogBugzProjects> fbProjects = new List<FogBugzProjects>();
-            var request = new RestRequest("listProjects", Method.POST);
-            request.AddHeader("Content-Type", "application/json");
-            request.AddJsonBody(new { token, });
-            var response = Client.Execute(request);
-            JObject res = JsonConvert.DeserializeObject<JObject>(response.Content);
-
-            var projectList = res.SelectToken("data.projects");
-
-            foreach (JObject o in projectList)
-            {
-                fbProjects.Add(new FogBugzProjects()
-                {
-                    ProjectId = (int)o.SelectToken("ixProject"),
-                    ProjectName = (string)o.SelectToken("sProject"),
-                    OwnerId = (int)o.SelectToken("ixPersonOwner"),
-                    OwnerName= (string)o.SelectToken("sPersonOwner"),
-                    IsDeleted= (bool)o.SelectToken("fDeleted")
-
-                });
-
-            }
-            return fbProjects;
-        }
+       
 
 
-        public int CreateNewCase(Tickets t)
+        public int CreateNewCase(FogBugzTickets t)
         {
             int ticketId = 0;
-
+            var request = new RestRequest("new", Method.POST);
+            request.AddHeader("Content-Type", "application/json");
+            request.AddHeader("Accept", "application/json");
+            //request.AddJsonBody();
+            //data.case.ixBug
             return ticketId;
+        }
+
+        private int CheckErrors(IRestResponse response)
+        {
+            int errorCount = 0;
+          
+            JObject res = JsonConvert.DeserializeObject<JObject>(response.Content);
+            var errors= res.SelectToken("errors");
+            foreach(JObject j in errors)
+            {
+                errorCount++;
+            }
+    
+            return errorCount;
+        }
+
+        private IRestResponse MakeRequest(FogBugzPostObject o)
+        {
+            IRestResponse res=null;
+            var request = new RestRequest(o.Command, Method.POST);
+            request.AddHeader("Content-Type", "application/json");
+            request.AddJsonBody(o.payload);
+            res = Client.Execute(request);
+
+            //On Successfull Call Make sure to Log this Request as well.
+            return res;
+        }
+
+        public List<iFogBugz> ParseResponse(IRestResponse response, Operation operation)
+        {
+
+            List<iFogBugz> fbItems = new List<iFogBugz>();
+            JObject res = JsonConvert.DeserializeObject<JObject>(response.Content);
+
+
+            switch (operation)
+            {
+                case Operation.ListFogBugzUsers:
+
+                    var peopleList = res.SelectToken("data.people");
+
+                    foreach (JObject o in peopleList)
+                    {
+                        fbItems.Add(new FogBugzUsers()
+                        {
+                            PersonId = (int)o.SelectToken("ixPerson"),
+                            FullName = (string)o.SelectToken("sFullName"),
+                            Email = (string)o.SelectToken("sEmail"),
+                            IsAdministrator = (bool)o.SelectToken("fAdministrator"),
+                            IsNotified = (bool)o.SelectToken("fNotify")
+
+                        });
+
+                    }
+                    break;
+                case Operation.ListProjects:
+                    var projectList = res.SelectToken("data.projects");
+                    foreach (JObject o in projectList)
+                    {
+                        fbItems.Add(new FogBugzProjects()
+                        {
+                            ProjectId = (int)o.SelectToken("ixProject"),
+                            ProjectName = (string)o.SelectToken("sProject"),
+                            OwnerId = (int)o.SelectToken("ixPersonOwner"),
+                            OwnerName = (string)o.SelectToken("sPersonOwner"),
+                            IsDeleted = (bool)o.SelectToken("fDeleted")
+
+                        });
+
+                    }
+                    break;
+            }
+            
+        
+
+            return fbItems;
         }
     }
 }

@@ -19,6 +19,6 @@ namespace SchedulerLibrary.EntityFramework.DbContexts
             optionsBuilder.UseSqlServer(ConfigurationManager.ConnectionStrings["CommonEntities"].ConnectionString);
         }
 
-        public DbSet<Tickets> Tickets { get; set; }
+        public DbSet<FogBugzTickets> Tickets { get; set; }
     }
 }

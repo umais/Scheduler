@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Text;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using SchedulerLibrary.Interfaces;
 namespace SchedulerLibrary.Entities
 {
-   public class Tickets
+   public class FogBugzTickets:iFogBugz
     {
         [Key]
        public int TicketId { get; set; }

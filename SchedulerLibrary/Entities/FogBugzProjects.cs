@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-
+using SchedulerLibrary.Interfaces;
 namespace SchedulerLibrary.Entities
 {
-   public  class FogBugzProjects
+   public  class FogBugzProjects:iFogBugz
     {
         public int ProjectId { get; set; }
 
