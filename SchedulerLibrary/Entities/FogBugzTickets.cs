@@ -18,8 +18,13 @@ namespace SchedulerLibrary.Entities
         [MaxLength(500)]
         public string TicketProject { get; set; }
 
-        public int PersonAssignedTo { get; set; }
+        public int? PersonAssignedTo { get; set; }
 
-        public int MileStone { get; set; }
+        public int? MileStone { get; set; }
+
+        public DateTime? lastRunDate { get; set; }
+
+       
+        public DateTime?  nextRunDate { get; set; }
     }
 }

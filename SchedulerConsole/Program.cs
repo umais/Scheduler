@@ -4,13 +4,14 @@ using SchedulerLibrary.Interfaces;
 using Quartz;
 using System.Linq;
 using System.Threading.Tasks;
-using SchedulerLibrary.Entities;
-using SchedulerLibrary.EntityFramework.DbContexts;
 using SchedulerLibrary.REST;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Json;
 using Microsoft.Extensions.Configuration.FileExtensions;
+using SchedulerLibrary.Repositories.Concrete;
+using SchedulerLibrary.Entities;
 using System.IO;
+using System.Collections;
 namespace SchedulerConsole
 {
     class Program
@@ -44,34 +45,44 @@ namespace SchedulerConsole
             }
 
 
-            //JobDbContext d = new JobDbContext();
-            //d.Add<Tickets>(new Tickets() { TicketId = 23, TicketTitle = "Testing 123", TicketContent = "This is my content please check" });
-            //d.SaveChanges();
 
             // Testing Fogbugz Login Request
-           
-            var fb = FogbugzRequest.GetInstance();
 
-             var people = fb.getFogBugzItems(new FogBugzPostObject()
-                                                         {
-                                                             Operation =(int)FogbugzRequest.Operation.ListFogBugzUsers,
-                                                             payload=new {token=fb.Token}    
-                                                         }
-                                             )
-                                             .Cast<FogBugzUsers>();
+            // var fb = FogbugzRequest.GetInstance();
 
-            var project = fb.getFogBugzItems(new FogBugzPostObject()
+            //  var people = fb.getFogBugzItems(new FogBugzPostObject()
+            //                                              {
+            //                                                  Operation =(int)FogbugzRequest.Operation.ListFogBugzUsers,
+            //                                                  payload=new {token=fb.Token}    
+            //                                              }
+            //                                  )
+            //                                  .Cast<FogBugzUsers>();
+
+            // var project = fb.getFogBugzItems(new FogBugzPostObject()
+            // {
+            //     Operation = (int)FogbugzRequest.Operation.ListProjects,
+            //     payload = new { token = fb.Token }
+
+            // }).Cast<FogBugzProjects>();
+
+            //var singlePerson=  people.Where(p => p.FullName == "Amir Saleem").FirstOrDefault<FogBugzUsers>();
+
+            FogBugzTicketRepository fb = new FogBugzTicketRepository();
+
+            var ticks = fb.getItems();
+
+            foreach(FogBugzTickets t in ticks)
             {
-                Operation = (int)FogbugzRequest.Operation.ListProjects,
-                payload = new { token = fb.Token }
+                Console.WriteLine("Ticket name: " + t.TicketTitle);
+                if(t.TicketId==1)
+                {
+                    t.lastRunDate = System.DateTime.Now;
+                    fb.Update(t);
+                }
+            }
 
-            }).Cast<FogBugzProjects>();
-
-           var singlePerson=  people.Where(p => p.FullName == "Amir Saleem").FirstOrDefault<FogBugzUsers>();
-
-
-            Console.WriteLine("The Job's have been started.");
-            Console.ReadLine();
+             Console.WriteLine("The Job's have been started. Press any key to exit.");
+             Console.ReadLine();
 
         }
 

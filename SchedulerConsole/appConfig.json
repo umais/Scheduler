@@ -1,5 +1,6 @@
 {
   "fogbugz_url": "https://aligncare.fogbugz.com/api/",
   "fb_username": "azureadministrator@aligncare.com",
-  "fb_pwd": "Tw1stone23"
+  "fb_pwd": "Tw1stone23",
+  "tickets_database": "Server=US-NYC-NL002628\\SQLEXPRESS;Database=JobDb;User Id=admin;Password=Tw1stone23;"
 }
