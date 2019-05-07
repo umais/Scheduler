@@ -107,11 +107,11 @@ namespace SchedulerLibrary.REST
         public int CreateNewCase(FogBugzTickets t)
         {
             int ticketId = 0;
-            var request = new RestRequest("new", Method.POST);
-            request.AddHeader("Content-Type", "application/json");
-            request.AddHeader("Accept", "application/json");
-            //request.AddJsonBody();
-            //data.case.ixBug
+          var response=  MakeRequest(new FogBugzPostObject { Operation = 1, payload = new  {token=this.Token,sTitle=t.TicketTitle,sEvent=t.TicketContent,sProject=t.TicketProject,ixPersonAssignedTo=t.PersonAssignedTo,ixFixFor=t.MileStone } });
+
+            JObject res = JsonConvert.DeserializeObject<JObject>(response.Content);
+            ticketId=(int)res.SelectToken("data.case.ixBug");
+        
             return ticketId;
         }
 

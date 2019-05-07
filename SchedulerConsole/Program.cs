@@ -67,19 +67,7 @@ namespace SchedulerConsole
 
             //var singlePerson=  people.Where(p => p.FullName == "Amir Saleem").FirstOrDefault<FogBugzUsers>();
 
-            FogBugzTicketRepository fb = new FogBugzTicketRepository();
-
-            var ticks = fb.getItems();
-
-            foreach(FogBugzTickets t in ticks)
-            {
-                Console.WriteLine("Ticket name: " + t.TicketTitle);
-                if(t.TicketId==1)
-                {
-                    t.lastRunDate = System.DateTime.Now;
-                    fb.Update(t);
-                }
-            }
+          
 
              Console.WriteLine("The Job's have been started. Press any key to exit.");
              Console.ReadLine();

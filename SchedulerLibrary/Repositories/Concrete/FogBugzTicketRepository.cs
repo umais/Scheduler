@@ -26,7 +26,7 @@ namespace SchedulerLibrary.Repositories.Concrete
         public List<iFogBugz> getItems()
         {
 
-            return d.Tickets.Where(x => x.lastRunDate==null).ToList<iFogBugz>(); ;
+            return d.Tickets.Where(x => ((x.lastRunDate==null && x.nextRunDate==null) ||(Convert.ToDateTime(x.nextRunDate).ToShortDateString()==DateTime.Now.ToShortDateString())) &&(x.NextRunType=="day" || x.NextRunType=="months")).ToList<iFogBugz>(); ;
         }
 
         public int Update(iFogBugz updatedItem)

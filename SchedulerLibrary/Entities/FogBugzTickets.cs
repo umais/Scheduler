@@ -26,5 +26,9 @@ namespace SchedulerLibrary.Entities
 
        
         public DateTime?  nextRunDate { get; set; }
+
+        public int? NextScheduleInterval { get; set; }
+
+        public string NextRunType { get; set; }
     }
 }
