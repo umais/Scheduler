@@ -26,23 +26,23 @@ namespace SchedulerConsole
     .AddJsonFile("appConfig.json", true, true)
     .Build();
 
-           
-           
-           
-
-            //  Assembly myAssembly = Assembly.GetExecutingAssembly();
-            var types = Assembly.Load("SchedulerLibrary").GetTypes()
-                .Where(x=>x.Namespace=="SchedulerLibrary.Jobs" && x.Name.EndsWith("Job"));
 
 
-            foreach (Type t in types)
-            {
-                
-                    var myClass = Activator.CreateInstance(t);
-                    var tsk = (Task)t.GetMethod("Start").Invoke(myClass, null);
-                
-             
-            }
+
+
+
+            //var types = Assembly.Load("SchedulerLibrary").GetTypes()
+            //    .Where(x=>x.Namespace=="SchedulerLibrary.Jobs" && x.Name.EndsWith("Job"));
+
+
+            //foreach (Type t in types)
+            //{
+
+            //        var myClass = Activator.CreateInstance(t);
+            //        var tsk = (Task)t.GetMethod("Start").Invoke(myClass, null);
+
+
+            //}
 
 
 
@@ -67,9 +67,11 @@ namespace SchedulerConsole
 
             //var singlePerson=  people.Where(p => p.FullName == "Amir Saleem").FirstOrDefault<FogBugzUsers>();
 
-          
+            FogBugzTicketRepository fr = new FogBugzTicketRepository();
+            fr.Insert(new FogBugzTickets { TicketTitle = "ttt", TicketContent = "hhh", MileStone = 1, PersonAssignedTo = 23, TicketProject = "trst" });
+            fr.Insert(new MessageLog { LogMessage = "hello", createdDate = DateTime.Now });
 
-             Console.WriteLine("The Job's have been started. Press any key to exit.");
+            Console.WriteLine("The Job's have been started. Press any key to exit.");
              Console.ReadLine();
 
         }

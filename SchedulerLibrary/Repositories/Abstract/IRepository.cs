@@ -9,7 +9,7 @@ namespace SchedulerLibrary.Repositories.Abstract
     {
        int Insert(iFogBugz item);
 
-        List<iFogBugz> getItems();
+        List<FogBugzTickets> getTickets();
 
         int Update(iFogBugz item);
 

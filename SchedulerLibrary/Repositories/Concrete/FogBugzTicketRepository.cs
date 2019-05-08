@@ -6,6 +6,7 @@ using SchedulerLibrary.Entities;
 using SchedulerLibrary.Interfaces;
 using SchedulerLibrary.EntityFramework.DbContexts;
 using System.Linq;
+using System.Reflection;
 namespace SchedulerLibrary.Repositories.Concrete
 {
     public class FogBugzTicketRepository:IRepository
@@ -18,20 +19,42 @@ namespace SchedulerLibrary.Repositories.Concrete
         }
         public int Insert(iFogBugz item)
         {
-           
-            d.Add<FogBugzTickets>((FogBugzTickets)item);
-            return d.SaveChanges();
+
+            int returnValue = -1;
+            try
+            {
+
+
+                Type t = item.GetType();
+                MethodInfo[] method = d.GetType().GetMethods();
+                MethodInfo genericmethod = method.FirstOrDefault(m => m.IsGenericMethod && m.Name == "Add").MakeGenericMethod(t);
+                genericmethod.Invoke(d, new object[] { item });
+                returnValue = d.SaveChanges();
+            }
+            catch(Exception ex)
+            {
+                //For now throwing the Exception but will make sure to log the information in a file to get easy access to error messages.
+                throw ex;
+            }
+            return returnValue;
+
         }
 
-        public List<iFogBugz> getItems()
+        public List<FogBugzTickets> getTickets()
         {
 
-            return d.Tickets.Where(x => ((x.lastRunDate==null && x.nextRunDate==null) ||(Convert.ToDateTime(x.nextRunDate).ToShortDateString()==DateTime.Now.ToShortDateString())) &&(x.NextRunType=="day" || x.NextRunType=="months")).ToList<iFogBugz>(); ;
+            return d.Tickets.Where(x => ((x.lastRunDate==null && x.nextRunDate==null) ||(Convert.ToDateTime(x.nextRunDate).ToShortDateString()==DateTime.Now.ToShortDateString())) &&(x.NextRunType=="day" || x.NextRunType=="months")).ToList<FogBugzTickets>(); ;
         }
 
         public int Update(iFogBugz updatedItem)
         {
-         d.Update<FogBugzTickets>((FogBugzTickets)updatedItem);
+
+            Type t = updatedItem.GetType();
+            MethodInfo[] method = d.GetType().GetMethods();
+            MethodInfo genericmethod = method.FirstOrDefault(m => m.IsGenericMethod && m.Name == "Update").MakeGenericMethod(t);
+            genericmethod.Invoke(d, new object[] { updatedItem });
+            //d.Update<FogBugzTickets>((FogBugzTickets)updatedItem);
+
             return d.SaveChanges();
         }
     }

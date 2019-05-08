@@ -25,7 +25,9 @@ namespace SchedulerLibrary.EntityFramework.DbContexts
         }
 
         public DbSet<FogBugzTickets> Tickets { get; set; }
+        public DbSet<TicketsCreated> TicketsCreated { get; set; }
 
+        public DbSet<MessageLog> LogInformation { get; set; }
 
      
      
