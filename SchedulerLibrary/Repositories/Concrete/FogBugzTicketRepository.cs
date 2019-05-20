@@ -43,7 +43,14 @@ namespace SchedulerLibrary.Repositories.Concrete
         public List<FogBugzTickets> getTickets()
         {
 
-            return d.Tickets.Where(x => ((x.lastRunDate==null && x.nextRunDate==null) ||(Convert.ToDateTime(x.nextRunDate).ToShortDateString()==DateTime.Now.ToShortDateString())) &&(x.NextRunType=="day" || x.NextRunType=="months")).ToList<FogBugzTickets>(); ;
+            return d.Tickets.Where(x => (
+                                             (x.lastRunDate==null && x.nextRunDate==null) ||
+                                            (Convert.ToDateTime(x.nextRunDate).ToShortDateString()==DateTime.Now.ToShortDateString()   &&
+                                               (x.NextRunType=="day" || x.NextRunType=="months" )) ||
+                                               (x.NextRunType=="minute")
+                                               
+                                               ))
+                                .ToList<FogBugzTickets>(); ;
         }
 
         public int Update(iFogBugz updatedItem)
