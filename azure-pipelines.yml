@@ -36,11 +36,3 @@ steps:
     configuration: '$(buildConfiguration)'
 
 - task: PublishBuildArtifacts@1
-
-- task: AzureRmWebAppDeployment@4
-  inputs:
-    ConnectionType: 'AzureRM'
-    azureSubscription: 'Visual Studio Enterprise: BizSpark (468a75ff-388b-4677-98bc-960455e136f0)'
-    appType: 'webApp'
-    WebAppName: 'appscheduler'
-    packageForLinux: '$(System.DefaultWorkingDirectory)/**/*.zip'
